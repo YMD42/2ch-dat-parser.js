@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="keywords" content="">
+  <meta name="description" content="">
+  <link rel="stylesheet" href="css/style.css" media="all">
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+  <script src="js/lib/encoding.js"></script>
+  <script src="js/2ch-dat-parser.js"></script>
+</head>
+<body>
+  <div id="title">Thread's test will be here</div>
+  <br>
+  <div id="output"> (output will be here) </div>
+</body>
+<script>
+var dat_file_url = './your_dat_file.dat'
+dat_file_url = 'test/1362149257.dat'
+var http = $.ajax({
+    type: 'GET',
+    url: dat_file_url,
+    success: function(ajax_data) {
+        // initialize the parser
+	var parser = new TwoChDatParser({data : ajax_data});
+
+        // parse dat file to JSON data
+	var thread_data = parser.JSON_data();
+
+        // produce html from the JSON data
+	var str = "";
+	for (var i = 0; i < thread_data.posts.length; i++) {
+            var post = thread_data.posts[i];
+
+            str += '<span class="number">' + i +
+                '</span> <span class="name"><b>' +
+                '<a href="' + post.email + '">' +
+                post.name + '</a></b></span>' +
+                ' <span class="date">' + post.date + '</span>' +
+                '<br>' +
+                ' <div class="body">' + post.body + '</div>'            
+        }
+
+        // insert into DOM
+        $('#title').text(thread_data.title);
+        $('#output').html(str);
+    },
+    beforeSend: function(xhr){
+        // need this part to handle response data as binary
+	xhr.overrideMimeType("text/plain; charset=x-user-defined");
+    }
+});
+</script>
+</html>
