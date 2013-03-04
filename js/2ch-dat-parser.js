@@ -1,6 +1,5 @@
 /* ==========================================================
- * bootstrap-affix.js v2.3.1
- * http://twitter.github.com/bootstrap/javascript.html#affix
+ * 2ch-dat-parser.js
  * ==========================================================
  * Copyright 2013 YMD42 https://github.com/YMD42
  *
@@ -22,7 +21,7 @@ var TwoChDatParser = function(arg) {
     self.data = null;
 
     self.encode = function(data) {
-	var data_array = [];
+n	var data_array = [];
 	for (var i = 0; i < data.length; i++) {
 	    data_array[i] = data.charCodeAt(i) & 0xff;
 	}
@@ -39,17 +38,27 @@ var TwoChDatParser = function(arg) {
 	var thread_title = (raw_posts[0].split('<>'))[3];
 	
 	for (var i = 0; i < raw_posts.length; i++) {
-	    posts.push(self.parse_post(raw_posts[i]));
-	}
-	
-	return {
-	    'title' : thread_title,
-	    'posts' : posts
-	};
+	    var post_json = self.parse_post(raw_posts[i]);
+            if (post_json == null) {
+                break;
+            }
+            posts.push(post_json);
+        }
+        
+
+        return {
+            'title' : thread_title,
+            'posts' : posts
+        };
     };
 
     self.parse_post = function(post) {
-	var post_array = post.split('<>');
+        var post_array = post.split('<>');
+
+        if (post_array.length < 4) {
+            return null;
+        }
+        
 	return {
 	    name  : post_array[0],
 	    email : post_array[1],
@@ -71,14 +80,15 @@ var TwoChDatParser = function(arg) {
 	self.data = data  
     };
     
-    self.init_with_url = function(url) {
-	self.init_with_data(data);
+    self.init_with_url = function(url, stop_encode) {
+	self.init_with_data(data, stop_encode);
     };
-
+    
+    // initialize
     if (arg.data) {
-	self.init_with_data(arg.data);
+	self.init_with_data(arg.data, arg.stop_encode);
     } else if (arg.url) {
-	self.init_with_url(arg.data);
+	self.init_with_url(arg.data, arg.stop_encode);
     }
 }
 
